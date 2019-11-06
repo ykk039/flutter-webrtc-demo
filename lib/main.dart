@@ -20,7 +20,7 @@ enum DialogDemoAction {
 
 class _MyAppState extends State<MyApp> {
   List<RouteItem> items;
-  String _serverAddress = '';
+  String _serverAddress = 'sg-autocomplete2.hktaxi.com';
   SharedPreferences prefs;
   bool _datachannel = false;
   @override
@@ -88,18 +88,7 @@ class _MyAppState extends State<MyApp> {
     showDemoDialog<DialogDemoAction>(
         context: context,
         child: new AlertDialog(
-            title: const Text('Enter server address:'),
-            content: TextField(
-              onChanged: (String text) {
-                setState(() {
-                  _serverAddress = text;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: _serverAddress,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            title: const Text('Connect to server?'),
             actions: <Widget>[
               new FlatButton(
                   child: const Text('CANCEL'),

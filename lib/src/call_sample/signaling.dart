@@ -27,7 +27,7 @@ typedef void DataChannelMessageCallback(
 typedef void DataChannelCallback(RTCDataChannel dc);
 
 class Signaling {
-  String _selfId = randomNumeric(6);
+  String _selfId = '12345678';
   var _socket;
   var _sessionId;
   var _host;
@@ -36,6 +36,10 @@ class Signaling {
   var _peerConnections = new Map<String, RTCPeerConnection>();
   var _dataChannels = new Map<String, RTCDataChannel>();
   var _remoteCandidates = [];
+
+  var peerId;
+  var peerDescription;
+  var peerMedia;
 
   MediaStream _localStream;
   List<MediaStream> _remoteStreams;
@@ -49,15 +53,17 @@ class Signaling {
 
   Map<String, dynamic> _iceServers = {
     'iceServers': [
-      {'url': 'stun:stun.l.google.com:19302'},
-      /*
-       * turn server configuration example.
-      {
-        'url': 'turn:123.45.67.89:3478',
-        'username': 'change_to_real_user',
-        'credential': 'change_to_real_secret'
-      },
-       */
+      {'url': 'stun:sg-autocomplete2.hktaxiapp.com:3478'},
+//      {'url': 'stun:stun.l.google.com:19302'},
+
+       //* turn server configuration example.
+//      {
+//        'url': 'turn:sg-autocomplete2.hktaxiapp.com:5766',
+//        'url': 'turn:sg-autocomplete2.hktaxiapp.com:3478',
+//        'username': 'change_to_real_user',
+//        'credential': 'change_to_real_secret'
+//      },
+
     ]
   };
 
@@ -112,12 +118,34 @@ class Signaling {
     }
 
     _createPeerConnection(peer_id, media, use_screen).then((pc) {
+      print('connected');
       _peerConnections[peer_id] = pc;
       if (media == 'data') {
         _createDataChannel(peer_id, pc);
       }
       _createOffer(peer_id, pc, media);
     });
+  }
+
+  void acceptPeer() async{
+
+    var pc = await _createPeerConnection(peerId, peerMedia, false);
+    _peerConnections[peerId] = pc;
+    await pc.setRemoteDescription(new RTCSessionDescription(
+        peerDescription['sdp'], peerDescription['type']));
+    await _createAnswer(peerId, pc, peerMedia);
+    if (this._remoteCandidates.length > 0) {
+      _remoteCandidates.forEach((candidate) async {
+        await pc.addCandidate(candidate);
+      });
+      _remoteCandidates.clear();
+    }
+
+    if (this.onStateChange != null) {
+      this.onStateChange(SignalingState.CallStateNew);
+//            this.onStateChange(SignalingState.CallStateNew);
+    }
+
   }
 
   void bye() {
@@ -145,27 +173,28 @@ class Signaling {
         break;
       case 'offer':
         {
-          var id = data['from'];
-          var description = data['description'];
-          var media = data['media'];
+          peerId = data['from'];
+          peerDescription = data['description'];
+          peerMedia = data['media'];
           var sessionId = data['session_id'];
           this._sessionId = sessionId;
 
           if (this.onStateChange != null) {
-            this.onStateChange(SignalingState.CallStateNew);
+            this.onStateChange(SignalingState.CallStateRinging);
+//            this.onStateChange(SignalingState.CallStateNew);
           }
 
-          var pc = await _createPeerConnection(id, media, false);
-          _peerConnections[id] = pc;
-          await pc.setRemoteDescription(new RTCSessionDescription(
-              description['sdp'], description['type']));
-          await _createAnswer(id, pc, media);
-          if (this._remoteCandidates.length > 0) {
-            _remoteCandidates.forEach((candidate) async {
-              await pc.addCandidate(candidate);
-            });
-            _remoteCandidates.clear();
-          }
+//          var pc = await _createPeerConnection(id, media, false);
+//          _peerConnections[id] = pc;
+//          await pc.setRemoteDescription(new RTCSessionDescription(
+//              description['sdp'], description['type']));
+//          await _createAnswer(id, pc, media);
+//          if (this._remoteCandidates.length > 0) {
+//            _remoteCandidates.forEach((candidate) async {
+//              await pc.addCandidate(candidate);
+//            });
+//            _remoteCandidates.clear();
+//          }
         }
         break;
       case 'answer':

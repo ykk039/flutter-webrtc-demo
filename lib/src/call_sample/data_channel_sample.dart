@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'signaling.dart';
 import 'package:flutter_webrtc/rtc_data_channel.dart';
+import 'random_string.dart';
 
 class DataChannelSample extends StatefulWidget {
   static String tag = 'call_sample';
@@ -132,8 +133,8 @@ class _DataChannelSampleState extends State<DataChannelSample> {
     return ListBody(children: <Widget>[
       ListTile(
         title: Text(self
-            ? peer['name'] + '[Your self]'
-            : peer['name'] + '[' + peer['user_agent'] + ']'),
+        ? peer['name'] + '[Your self]'
+        : peer['name'] + '[' + peer['user_agent'] + ']'),
         onTap: () => _invitePeer(context, peer['id']),
         trailing: Icon(Icons.sms),
         subtitle: Text('id: ' + peer['id']),
@@ -162,17 +163,23 @@ class _DataChannelSampleState extends State<DataChannelSample> {
               child: new Icon(Icons.call_end),
             )
           : null,
-      body: _inCalling? new Center(
-              child: new Container(
-              child:  Text('Recevied => ' + _text),
-              ),
-              ) : new ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(0.0),
-              itemCount: (_peers != null ? _peers.length : 0),
-              itemBuilder: (context, i) {
-                return _buildRow(context, _peers[i]);
-              }),
+      body: _inCalling?
+        new Center(
+          child: new Container(
+            child:  Text('Recevied => ' + _text),
+          ),
+        )
+        : new ListView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(0.0),
+          itemCount: (_peers != null ? _peers.length : 0),
+          itemBuilder: (context, i) {
+            print('vvvvvvvvvvvvvvvvvvvvvvvvvv');
+//            print(self);
+//            print('>>>>>>>>>>>>>>>>>>>>>>>');
+            print(_peers);
+            return _buildRow(context, _peers[i]);
+          }),
     );
   }
 }

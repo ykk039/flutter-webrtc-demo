@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 import 'signaling.dart';
 import 'package:flutter_webrtc/webrtc.dart';
+import 'random_string.dart';
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
@@ -17,13 +18,14 @@ class CallSample extends StatefulWidget {
 
 class _CallSampleState extends State<CallSample> {
   Signaling _signaling;
-  String _displayName =
-      Platform.localHostname + '(' + Platform.operatingSystem + ")";
+  String _displayName = 'hihi';
+//      Platform.localHostname + '(' + Platform.operatingSystem + ")";
   List<dynamic> _peers;
   var _selfId;
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
   bool _inCalling = false;
+  bool _inRinging = false;
   final String serverIP;
 
   _CallSampleState({Key key, @required this.serverIP});
@@ -58,6 +60,7 @@ class _CallSampleState extends State<CallSample> {
           case SignalingState.CallStateNew:
             this.setState(() {
               _inCalling = true;
+              _inRinging = false;
             });
             break;
           case SignalingState.CallStateBye:
@@ -70,6 +73,10 @@ class _CallSampleState extends State<CallSample> {
           case SignalingState.CallStateInvite:
           case SignalingState.CallStateConnected:
           case SignalingState.CallStateRinging:
+            this.setState(() {
+              _inRinging = true;
+            });
+            break;
           case SignalingState.ConnectionClosed:
           case SignalingState.ConnectionError:
           case SignalingState.ConnectionOpen:
@@ -99,6 +106,8 @@ class _CallSampleState extends State<CallSample> {
   }
 
   _invitePeer(context, peerId, use_screen) async {
+    print('peerID');
+    print(peerId);
     if (_signaling != null && peerId != _selfId) {
       _signaling.invite(peerId, 'video', use_screen);
     }
@@ -123,25 +132,27 @@ class _CallSampleState extends State<CallSample> {
     return ListBody(children: <Widget>[
       ListTile(
         title: Text(self
-            ? peer['name'] + '[Your self]'
-            : peer['name'] + '[' + peer['user_agent'] + ']'),
+          ? peer['name']
+          : peer['name']
+            //+ '[' + peer['user_agent'] + ']'
+        ),
         onTap: null,
         trailing: new SizedBox(
-            width: 100.0,
-            child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.videocam),
-                    onPressed: () => _invitePeer(context, peer['id'], false),
-                    tooltip: 'Video calling',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.screen_share),
-                    onPressed: () => _invitePeer(context, peer['id'], true),
-                    tooltip: 'Screen sharing',
-                  )
-                ])),
+          width: 100.0,
+          child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: () => _invitePeer(context, peer['id'], false),
+                  tooltip: 'Video calling',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.screen_share),
+                  onPressed: () => _invitePeer(context, peer['id'], true),
+                  tooltip: 'Screen sharing',
+                )
+              ])),
         subtitle: Text('id: ' + peer['id']),
       ),
       Divider()
@@ -166,23 +177,44 @@ class _CallSampleState extends State<CallSample> {
           ? new SizedBox(
             width: 200.0,
             child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FloatingActionButton(
-                    child: const Icon(Icons.switch_camera),
-                    onPressed: _switchCamera,
-                  ),
-                  FloatingActionButton(
-                    onPressed: _hangUp,
-                    tooltip: 'Hangup',
-                    child: new Icon(Icons.call_end),
-                    backgroundColor: Colors.pink,
-                  ),
-                  FloatingActionButton(
-                    child: const Icon(Icons.mic_off),
-                    onPressed: _muteMic,
-                  )
-                ])) : null,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                FloatingActionButton(
+                  child: const Icon(Icons.switch_camera),
+                  onPressed: _switchCamera,
+                ),
+                FloatingActionButton(
+                  onPressed: _hangUp,
+                  tooltip: 'Hangup',
+                  child: new Icon(Icons.call_end),
+                  backgroundColor: Colors.pink,
+                ),
+                FloatingActionButton(
+                  child: const Icon(Icons.mic_off),
+                  onPressed: _muteMic,
+                )
+                ])) :
+            _inRinging ?
+              new SizedBox(
+                width: 200.0,
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    FloatingActionButton(
+                      onPressed: _signaling.acceptPeer,
+//                      tooltip: 'Hangup',
+                      child: new Icon(Icons.call),
+                      backgroundColor: Colors.green,
+                    ),
+                    FloatingActionButton(
+                      child: const Icon(Icons.call_end),
+                      backgroundColor: Colors.pink,
+                      onPressed: _hangUp,
+                    )
+                  ]
+                )
+              ):
+              null,
       body: _inCalling
           ? OrientationBuilder(builder: (context, orientation) {
               return new Container(
@@ -213,7 +245,9 @@ class _CallSampleState extends State<CallSample> {
                 ]),
               );
             })
-          : new ListView.builder(
+          : _inRinging?
+            new Container()
+            :new ListView.builder(
               shrinkWrap: true,
               padding: const EdgeInsets.all(0.0),
               itemCount: (_peers != null ? _peers.length : 0),
