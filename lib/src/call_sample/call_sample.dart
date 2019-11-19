@@ -68,6 +68,7 @@ class _CallSampleState extends State<CallSample> {
               _localRenderer.srcObject = null;
               _remoteRenderer.srcObject = null;
               _inCalling = false;
+              _inRinging = false;
             });
             break;
           case SignalingState.CallStateInvite:
@@ -210,6 +211,7 @@ class _CallSampleState extends State<CallSample> {
                       child: const Icon(Icons.call_end),
                       backgroundColor: Colors.pink,
                       onPressed: _hangUp,
+                      tooltip: 'Hangup',
                     )
                   ]
                 )
