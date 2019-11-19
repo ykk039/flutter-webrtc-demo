@@ -20,7 +20,7 @@ enum DialogDemoAction {
 
 class _MyAppState extends State<MyApp> {
   List<RouteItem> items;
-  String _serverAddress = 'sg-autocomplete2.hktaxi.com';
+  String _serverAddress = 'sg-autocomplete2.hktaxiapp.com';
   SharedPreferences prefs;
   bool _datachannel = false;
   @override
