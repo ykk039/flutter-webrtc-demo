@@ -60,9 +60,9 @@ class _MyAppState extends State<MyApp> {
 
   _initData() async {
     prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _serverAddress = prefs.getString('server') ?? 'demo.cloudwebrtc.com';
-    });
+//    setState(() {
+//      _serverAddress = prefs.getString('server') ?? 'demo.cloudwebrtc.com';
+//    });
   }
 
   void showDemoDialog<T>({BuildContext context, Widget child}) {
@@ -98,6 +98,8 @@ class _MyAppState extends State<MyApp> {
               new FlatButton(
                   child: const Text('CONNECT'),
                   onPressed: () {
+                    print('server');
+                    print(_serverAddress);
                     Navigator.pop(context, DialogDemoAction.connect);
                   })
             ]));
