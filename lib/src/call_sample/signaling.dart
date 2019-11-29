@@ -57,12 +57,13 @@ class Signaling {
 //      {'url': 'stun:stun.l.google.com:19302'},
 
        //* turn server configuration example.
-//      {
-//        'url': 'turn:sg-autocomplete2.hktaxiapp.com:5766',
+      {
+        'url': 'turn:sg-autocomplete2.hktaxiapp.com:5349',
 //        'url': 'turn:sg-autocomplete2.hktaxiapp.com:3478',
-//        'username': 'change_to_real_user',
-//        'credential': 'change_to_real_secret'
-//      },
+//        'secret': 'f2b3c8957c62c70e43500ece5ad80cc2472e14f759d9513fd6592dff9fa1591a',
+        'username':'apple',
+        'credential': 'pie'
+      },
 
     ]
   };
