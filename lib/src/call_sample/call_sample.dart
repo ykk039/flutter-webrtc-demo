@@ -110,7 +110,7 @@ class _CallSampleState extends State<CallSample> {
     print('peerID');
     print(peerId);
     if (_signaling != null && peerId != _selfId) {
-      _signaling.invite(peerId, 'video', use_screen);
+      _signaling.invite(peerId, 'audio', use_screen);
     }
   }
 
